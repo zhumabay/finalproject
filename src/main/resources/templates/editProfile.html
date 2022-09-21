@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/main.html">
+
+    <div layout:fragment="mainContent">
+
+        <div class="row justify-content-center">
+            <div class="col-md-9">
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Basic info
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{'/update'}" method="post">
+                            <input type="hidden" name="id" th:value="${#authentication.getPrincipal().id}">
+                            <div class="row mt-2">
+                                <div class="col-4 d-flex justify-content-end">
+                                    <label>Full name:</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control form-control-sm" name="fullName"
+                                           th:placeholder="${#authentication.getPrincipal().fullName}" required>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-4 d-flex justify-content-end">
+                                    <label>Country:</label>
+                                </div>
+                                <div class="col-6">
+                                    <select name="status" class="form-select form-select-sm">
+                                        <option value="" disabled selected>Choose country</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-4 d-flex justify-content-end">
+                                    <label>City:</label>
+                                </div>
+                                <div class="col-6">
+                                    <select name="status" class="form-select form-select-sm">
+                                        <option value="" disabled selected>Choose city</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-10 d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-success btn-sm">Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <h1>Upload picture</h1>
+                <form th:action="@{'/uploadava'}" method="post" enctype="multipart/form-data">
+                    <div class="row mt-3">
+                        <div>
+                            <label class="form-label">Choose User Avatar</label>
+                            <input class="form-control" type="file" name="user_ava" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">UPLOAD AVATAR</button>
+                        </div>
+                    </div>
+                </form>
+
+        </div>
+    </div>
+</html>

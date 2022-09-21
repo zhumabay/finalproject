@@ -1,0 +1,87 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="super-admin" id="2022.09.06_0.0.1_create_init_tables">
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 endDelimiter=";"
+                 path="changes/2022.09.06_0.0.1_create_init_tables.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+    <changeSet author="super-admin" id="2022.09.06_0.0.2_insert_roles_data">
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 endDelimiter=";"
+                 path="changes/2022.09.06_0.0.2_insert_roles_data.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+    <changeSet author="super-admin" id="2022.09.06_0.0.3_insert_users_data">
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 endDelimiter=";"
+                 path="changes/2022.09.06_0.0.3_insert_users_data.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+    <changeSet author="super-admin" id="2022.09.06_0.0.4_insert_users_roles_data">
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 endDelimiter=";"
+                 path="changes/2022.09.06_0.0.4_insert_users_roles_data.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+    <changeSet author="super-admin" id="2022.09.06_0.0.5_insert_posts_data">
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 endDelimiter=";"
+                 path="changes/2022.09.06_0.0.5_insert_posts_data.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+    <changeSet author="super-admin" id="2022.09.06_0.0.6_insert_comments_data">
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 endDelimiter=";"
+                 path="changes/2022.09.06_0.0.6_insert_comments_data.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+    <changeSet author="super-admin" id="2022.09.06_0.0.7_insert_messages_data">
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 endDelimiter=";"
+                 path="changes/2022.09.06_0.0.7_insert_messages_data.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+    <changeSet author="super-admin" id="2022.09.06_0.0.8_insert_user_relationships_data">
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 endDelimiter=";"
+                 path="changes/2022.09.06_0.0.8_insert_user_relationships_data.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+    <changeSet author="super-admin" id="2022.09.06_0.0.9_insert_friend_requests_data">
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 endDelimiter=";"
+                 path="changes/2022.09.06_0.0.9_insert_friend_requests_data.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/main.html">
+
+    <div layout:fragment="mainContent">
+
+        <div class="row mt-4 justify-content-center">
+            <div class="col-md-7">
+
+                <div class="card mb-3" th:each="p : ${posts}">
+                    <div class="card-header" th:if="${posts.indexOf(p)==0}">
+                        <span th:text="#{allNews}"></span>
+                    </div>
+                    <div class="card-body" >
+                        <img th:src="@{'/getavatar/'+${p.user.avatarUrl}}" alt="Avatar" class="post" style="width:100%;">
+                        <h5 class="card-title">
+                            <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${p.user.id}}" th:text="${p.user.fullName}"></a>
+                        </h5>
+                        <h6 class="card-subtitle mb-3 text-muted"><small><span th:text="${p.createdAt}"></span></small></h6>
+                        <p class="card-text" th:text="${p.text}"></p>
+                        <img th:src="@{'/getimage/'+${p.imageUrl}}" class="img-fluid rounded-start" alt="Image" th:if="${!p.imageUrl.equals('default')}">
+                        <div class="row">
+                            <div class="col">
+                                <form th:action="@{'/addlike'}" method="post" th:if="${!likedPosts.contains(p)}">
+                                    <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
+                                    <input type="hidden" name="post.id" th:value="${p.id}">
+                                    <input type="hidden" name="direction" th:value="${'news'}">
+                                    <button type="submit" class="btn border-0">
+                                        <i class='far fa-heart mt-2' style='font-size:16px'></i> <span th:text="${p.likesAmount}"></span>
+                                    </button>
+                                    <button type="button" class="btn border-0">
+                                        <i class='far fa-comment-alt mt-2'></i> <span th:text="${p.commentsAmount}"></span>
+                                    </button>
+                                </form>
+                                <form th:action="@{'/deletelike'}" method="post" th:unless="${!likedPosts.contains(p)}">
+                                    <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
+                                    <input type="hidden" name="post.id" th:value="${p.id}">
+                                    <input type="hidden" name="direction" th:value="${'news'}">
+                                    <button type="submit" class="btn border-0">
+                                        <i class='fas fa-heart mt-2' style='font-size:16px'></i> <span th:text="${p.likesAmount}"></span>
+                                    </button>
+                                    <button type="button" class="btn border-0">
+                                        <i class='far fa-comment-alt mt-2'></i> <span th:text="${p.commentsAmount}"></span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <hr class="post">
+                        <div class="ms-3" th:each="c : ${comments}" th:if="${p.id==c.post.id}">
+                            <img th:src="@{'/getavatar/'+${c.user.avatarUrl}}" alt="Avatar" class="comment" style="width:100%;">
+                            <div class="row">
+                                <div class="col-6 d-flex justify-content-start">
+                                    <h6 class="">
+                                        <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${c.user.id}}" th:text="${c.user.fullName}"></a>
+                                    </h6>
+                                </div>
+                                <div class="col-6 mt-2 d-flex justify-content-end" th:if="${c.user.id==#authentication.getPrincipal().id}">
+
+                                    <i class='far fa-trash-alt' style='font-size:16px' data-bs-toggle="modal" data-bs-target="#deleteCommentModal"
+                                       th:onclick="'deleteComment('+${c.id}+')'"></i>
+                                    <script>
+                                        function deleteComment(id){
+                                            document.getElementById("commentId").value=id;
+                                        }
+                                    </script>
+                                </div>
+                            </div>
+<!--                            <h6 class="">-->
+<!--                                <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${c.user.id}}" th:text="${c.user.fullName}"></a>-->
+<!--                            </h6>-->
+                            <p class="card-subtitle mb-1 text-muted"><small><span th:text="${c.createdAt}"></span></small></p>
+                            <h6 class="ms-5" th:text="${c.text}"></h6>
+                            <hr class="post">
+                        </div>
+                        <form th:action="@{'/addcomment'}" method="post">
+                            <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
+                            <input type="hidden" name="post.id" th:value="${p.id}">
+                            <input type="hidden" name="direction" th:value="${'news'}">
+                            <div class="row ms-2">
+                                <div class="col-10">
+                                    <input type="text" class="form-control form-control-sm mt-2" name="text" th:placeholder="#{writeAComment}" required>
+                                </div>
+                                <div class="col d-flex justify-content-center">
+                                    <button type="submit" class="btn btn-success mt-2 btn-sm">
+                                        <i class='far fa-comment-alt'></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+
+                <div class="card mb-3" th:if="${posts.size()==0}">
+                    <div class="card-header" >
+                        <span th:text="#{allPosts}"></span>
+                    </div>
+                    <div class="card-body mt-5 mb-5" th:if="${posts.size()==0}">
+                        <div class="text-center">
+                            <h6>You don't have any news yet.</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="deleteCommentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteCommentModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="${'/deletecomment'}" method="post">
+                                <input type="hidden" name="comment_id" id="commentId">
+                                <input type="hidden" name="direction" th:value="${'news'}">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteCommentModalLabel">Confirm delete</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No</button>
+                                    <button type="submit" class="btn btn-danger btn-sm">Yes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/main.html">
+
+    <div layout:fragment="mainContent">
+
+        <div class="row mt-4 justify-content-center">
+            <div class="col-md-8">
+
+                <div class="card mb-3" th:if="${users.size()!=0}">
+                    <div class="card-header">
+                        <span th:text="#{people}"></span>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <form th:action="@{'/searchusers'}" method="post">
+                                <div class="row mt-1 mb-1">
+                                    <div class="col-10">
+                                        <input type="search" class="form-control form-control-sm" name="keyword" th:placeholder="#{writeFullName}" required>
+                                    </div>
+                                    <div class="col d-flex justify-content-center">
+                                        <button class="btn btn-primary btn-sm w-100" type="submit"><span th:text="#{search}"></span></button>
+                                    </div>
+                                </div>
+                            </form>
+                        </li>
+                    </ul>
+                    <div class="" th:each="u : ${users}">
+                        <img th:src="@{'/getavatar/'+${u.avatarUrl}}" alt="Avatar" class="users" style="width:100%;">
+                        <h6><a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${u.id}}"><span th:text="${u.fullName}"></span></a></h6>
+                        <p>
+                            <small>
+                                <a th:href="@{'/chat/'+${u.id}}" th:if="${u.id!=#authentication.getPrincipal().id}"><span th:text="#{writeMessage}"></span></a>
+                                <a class="invisible" th:unless="${u.id!=#authentication.getPrincipal().id}">null</a>
+                            </small>
+                        </p>
+                        <button type="button" class="btn btn-sm border-0" th:if="${u.id==#authentication.getPrincipal().id}"></button>
+                        <form th:action="@{'/deletefriend'}" method="post" th:if="${myFriends.contains(u)}">
+                            <input type="hidden" name="friend_id" th:value="${u.id}">
+                            <input type="hidden" name="direction" th:value="${'search'}">
+                            <button type="submit" class="btn btn-danger btn-sm"><span th:text="#{unfriend}"></span> <i class='fas fa-user-times'></i></button>
+                        </form>
+                        <form th:action="@{'/undorequest'}" method="post" th:if="${myFollowings.contains(u)}">
+                            <input type="hidden" name="receiver_id" th:value="${u.id}">
+                            <input type="hidden" name="direction" th:value="${'search'}">
+                            <button type="submit" class="btn btn-secondary btn-sm"><span th:text="#{undo}"></span> <i class='fas fa-user-minus'></i></button>
+                        </form>
+                        <form th:action="@{'/acceptrequest'}" method="post" th:if="${myFollowers.contains(u)}">
+                            <input type="hidden" name="sender_id" th:value="${u.id}">
+                            <input type="hidden" name="direction" th:value="${'search'}">
+                            <button type="submit" class="btn btn-primary btn-sm"><span th:text="#{acceptRequest}"></span> <i class='fas fa-user-check'></i></button>
+                        </form>
+                        <form th:action="@{'/sendrequest'}" method="post"
+                              th:if="${!myFriends.contains(u) && !myFollowers.contains(u)
+                              && !myFollowings.contains(u) && u.id!=#authentication.getPrincipal().id}">
+
+                            <input type="hidden" name="receiver_id" th:value="${u.id}">
+                            <input type="hidden" name="direction" th:value="${'search'}">
+                            <button type="submit" class="btn btn-success btn-sm"><span th:text="#{addFriend}"></span> <i class='fas fa-user-plus'></i></button>
+                        </form>
+
+                        <hr class="people" th:if="${users.indexOf(u)!=users.size()-1}">
+                        <hr class="last" th:unless="${users.indexOf(u)!=users.size()-1}">
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</html>

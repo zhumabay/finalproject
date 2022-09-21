@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/main.html">
+
+    <div layout:fragment="mainContent">
+
+        <div class="row mt-4 mb-3 justify-content-center">
+            <div class="col-md-8">
+
+                <div class="card" style="margin-bottom: 2px" th:each="m : ${messages}">
+                    <div class="card-header text-end" th:if="${messages.indexOf(m)==0}">
+                        <div class="col">
+                            <img th:src="@{'/getavatar/'+${receiver.avatarUrl}}" alt="Avatar" class="rightheadchat" style="width:100%;">
+                            <div class="row">
+                                <div class="col">
+                                    <a class="text-dark" style="text-decoration: none;" th:href="@{'/usersprofile/'+${receiver.id}}" th:text="${receiver.fullName}"></a>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="">
+                                    <small>
+                                        <div th:if="${receiver.online}">
+                                            <span class="time-right" th:text="#{online}"></span>
+                                        </div>
+                                        <div th:unless="${receiver.online}">
+                                            <span class="time-right">
+                                                <span th:text="#{lastSeenAt}"></span> <span th:text="${receiver.exitTime}"></span>
+                                            </span>
+                                        </div>
+
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" th:if="${m.sender.id==#authentication.getPrincipal().getId()}">
+                        <img th:src="@{'/getavatar/'+${m.sender.avatarUrl}}" alt="Avatar" class="left" style="width:100%;">
+                        <p th:text="${m.message}"></p>
+                        <small><span class="time-right" th:text="${m.createdAt}"></span></small>
+                    </div>
+
+                    <div class="card-body darker" th:unless="${m.sender.id==#authentication.getPrincipal().getId()}">
+                        <img th:src="@{'/getavatar/'+${m.sender.avatarUrl}}" alt="Avatar" class="right" style="width:100%;">
+                        <p th:text="${m.message}"></p>
+                        <small><span class="time-left" th:text="${m.createdAt}"></span></small>
+                    </div>
+                    <div class="card-footer" th:if="${messages.indexOf(m)==messages.size()-1}">
+                        <form th:action="@{'/sendmessage'}" method="post">
+                            <input type="hidden" name="sender_id" th:value="${#authentication.getPrincipal().id}">
+                            <input type="hidden" name="receiver_id" th:value="${receiver.id}">
+                            <div class="row mt-1 mb-1">
+                                <div class="col-10">
+                                    <input type="text" class="form-control form-control-sm" name="message" th:placeholder="#{writeMessage}" required>
+                                </div>
+                                <div class="col d-flex justify-content-center">
+                                    <button type="submit" class="btn btn-success btn-sm w-100">
+                                        <i class='far fa-paper-plane'></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 2px" th:if="${messages.size()==0}">
+                    <div class="card-header text-end">
+                        <div class="col">
+                            <img th:src="@{'/getavatar/'+${receiver.avatarUrl}}" alt="Avatar" class="rightheadchat" style="width:100%;">
+                            <div class="row">
+                                <div class="col">
+                                    <a class="text-dark" style="text-decoration: none;" th:href="@{'/usersprofile/'+${receiver.id}}" th:text="${receiver.fullName}"></a>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="">
+                                    <small>
+                                        <div th:if="${receiver.online}">
+                                            <span class="time-right" th:text="#{online}"></span>
+                                        </div>
+                                        <div th:unless="${receiver.online}">
+                                            <span class="time-right">
+                                                <span th:text="#{lastSeenAt}"></span> <span th:text="${receiver.exitTime}"></span>
+                                            </span>
+                                        </div>
+
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mt-5 mb-5">
+                            <h6>Your message history will be displayed here.</h6>
+                        </div>
+                    </div>
+                    <div class="card-footer" th:if="${messages.indexOf(m)==messages.size()-1}">
+                        <form th:action="@{'/sendmessage'}" method="post">
+                            <input type="hidden" name="sender_id" th:value="${#authentication.getPrincipal().id}">
+                            <input type="hidden" name="receiver_id" th:value="${receiver.id}">
+                            <div class="row mt-1 mb-1">
+                                <div class="col-10">
+                                    <input type="text" class="form-control form-control-sm w-100" name="message" th:placeholder="#{writeMessage}" required>
+                                </div>
+                                <div class="col d-flex justify-content-center">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class='far fa-paper-plane'></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</html>

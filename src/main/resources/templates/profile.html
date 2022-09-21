@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/main.html">
+
+    <div layout:fragment="mainContent">
+
+        <div class="row mt-4 justify-content-center">
+            <div class="col-md-9">
+
+                <div class="card mb-1">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img th:src="@{'/getavatar/'+${user.avatarUrl}}" class="img-fluid rounded-start" alt="Image">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+
+                                <div class="row">
+                                    <div class="col-6 d-flex justify-content-start">
+                                        <h5 class="card-title"><span th:text="${user.fullName}"></span></h5>
+                                    </div>
+                                    <div class="col-6 d-flex justify-content-end" th:if="${user.online}">
+                                        <p class="card-text"><small class="text-muted"><span class="country" th:text="#{online}"></span></small></p>
+                                    </div>
+                                    <div class="col-6 d-flex justify-content-end" th:unless="${user.online}">
+                                        <p class="card-text"><small class="text-muted">
+                                            <span th:text="#{lastSeenAt}"></span> <span class="country" th:text="${user.exitTime}"></span></small>
+                                        </p>
+                                    </div>
+                                </div>
+                                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                                <p class="card-text"><small class="text-muted"><span class="country">Almaty, Kazakhstan</span></small></p>
+                                <div class="row justify-content-center">
+                                    <div class="col">
+                                        <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${user.id}}">
+                                            <strong class="number" th:text="${posts.size()}"></strong> <span th:text="#{posts}"></span>
+                                        </a>
+                                    </div>
+                                    <div class="col">
+                                        <a class="text-dark" style="text-decoration: none" th:href="@{'/friends/'+${user.id}}">
+                                            <strong class="number" th:text="${numOfFriends}"></strong> <span th:text="#{friends}"></span>
+                                        </a>
+                                    </div>
+                                    <div class="col">
+                                        <a class="text-dark" style="text-decoration: none" th:href="@{'/followers/'+${user.id}}">
+                                            <strong class="number" th:text="${numOfFollowers}"></strong> <span th:text="#{followers}"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-7">
+                <div th:if="${user.id==#authentication.getPrincipal().id}">
+                    <!-- Button trigger modal -->
+                    <div class="col mt-3 mb-3 d-flex justify-content-end">
+                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                            + <span th:text="#{newPost}"></span>
+                        </button>
+                    </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form th:action="@{'/addpost'}" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="staticBackdropLabel"><span th:text="#{addNewPost}"></span></h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <label><span th:text="#{postText}"></span>:</label>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-12">
+                                                <textarea class="form-control" name="text" cols="50" rows="5" th:placeholder="#{writeText}" required></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col-12">
+                                                <label><span th:text="#{choosePostImage}"></span>:</label>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-12">
+                                                <input type="file" class="form-control form-control-sm" name="post_image">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><span th:text="#{close}"></span></button>
+                                        <button type="submit" class="btn btn-success btn-sm"><span th:text="#{addPost}"></span></button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:unless="${user.id==#authentication.getPrincipal().id}">
+                    <div class="row mt-3 mb-3">
+                        <div class="col text-end">
+                            <form th:action="@{'/deletefriend'}" method="post" th:if="${description.equals('friend')}">
+                                <input type="hidden" name="friend_id" th:value="${user.id}">
+                                <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
+                                <button type="submit" class="btn btn-danger btn-sm"><span th:text="#{unfriend}"></span> <i class='fas fa-user-times'></i></button>
+                            </form>
+                            <form th:action="@{'/sendrequest'}" method="post" th:if="${description.equals('unknown')}">
+                                <input type="hidden" name="receiver_id" th:value="${user.id}">
+                                <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
+                                <button type="submit" class="btn btn-success btn-sm"><span th:text="#{addFriend}"></span> <i class='fas fa-user-plus'></i></button>
+                            </form>
+                            <form th:action="@{'/undorequest'}" method="post" th:if="${description.equals('following')}">
+                                <input type="hidden" name="receiver_id" th:value="${user.id}">
+                                <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
+                                <button type="submit" class="btn btn-secondary btn-sm"><span th:text="#{undo}"></span> <i class='fas fa-user-minus'></i></button>
+                            </form>
+                            <form th:action="@{'/acceptrequest'}" method="post" th:if="${description.equals('follower')}">
+                                <input type="hidden" name="sender_id" th:value="${user.id}">
+                                <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
+                                <button type="submit" class="btn btn-primary btn-sm"><span th:text="#{acceptRequest}"></span> <i class='fas fa-user-check'></i></button>
+                            </form>
+
+                            <button class="btn btn-secondary btn-sm mt-1" th:href="@{'/chat/'+${user.id}}">
+                                <span th:text="#{writeMes}"></span> <i class="fa fa-pencil"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-3" th:each="p : ${posts}">
+                    <div class="card-header" th:if="${posts.indexOf(p)==0}">
+                        <span th:text="#{allPosts}"></span>
+                    </div>
+                    <div class="card-body">
+                        <img th:src="@{'/getavatar/'+${p.user.avatarUrl}}" alt="Avatar" class="post" style="width:100%;">
+                        <div class="row">
+                            <div class="col-6 d-flex justify-content-start">
+                                <h5 class="card-title">
+                                    <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${p.user.id}}" th:text="${p.user.fullName}"></a>
+                                </h5>
+                            </div>
+                            <div class="col-6 d-flex justify-content-end" th:if="${user.id==#authentication.getPrincipal().id}">
+                                <i class='far fa-edit me-1' data-bs-toggle="modal" data-bs-target="#editPostModal"
+                                   th:onclick="'editPost('+${p.id}+')'"></i>
+                                <i class='far fa-trash-alt' data-bs-toggle="modal" data-bs-target="#deletePostModal"
+                                   th:onclick="'deletePost('+${p.id}+')'"></i>
+                                <script>
+                                    function editPost(id){
+                                        document.getElementById("postId").value=id;
+                                    }
+                                    function deletePost(id){
+                                        document.getElementById("postId").value=id;
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                        <h6 class="card-subtitle mb-3 text-muted"><small><span th:text="${p.createdAt}"></span></small></h6>
+                        <p class="card-text" th:text="${p.text}"></p>
+                        <img th:src="@{'/getimage/'+${p.imageUrl}}" class="img-fluid rounded-start" alt="Image" th:if="${!p.imageUrl.equals('default')}">
+                        <div class="row">
+                            <div class="col">
+                                <form th:action="@{'/addlike'}" method="post" th:if="${!likedPosts.contains(p)}">
+                                    <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
+                                    <input type="hidden" name="post.id" th:value="${p.id}">
+                                    <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
+                                    <button type="submit" class="btn border-0">
+                                        <i class='far fa-heart mt-2' style='font-size:16px'></i> <span th:text="${p.likesAmount}"></span>
+                                    </button>
+                                    <button type="button" class="btn border-0">
+                                        <i class='far fa-comment-alt mt-2'></i> <span th:text="${p.commentsAmount}"></span>
+                                    </button>
+                                </form>
+                                <form th:action="@{'/deletelike'}" method="post" th:unless="${!likedPosts.contains(p)}">
+                                    <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
+                                    <input type="hidden" name="post.id" th:value="${p.id}">
+                                    <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
+                                    <button type="submit" class="btn border-0">
+                                        <i class='fas fa-heart mt-2' style='font-size:16px'></i> <span th:text="${p.likesAmount}"></span>
+                                    </button>
+                                    <button type="button" class="btn border-0">
+                                        <i class='far fa-comment-alt mt-2'></i> <span th:text="${p.commentsAmount}"></span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <hr class="post">
+                        <div class="ms-3" th:each="c : ${comments}" th:if="${p.id==c.post.id}">
+                            <img th:src="@{'/getavatar/'+${c.user.avatarUrl}}" alt="Avatar" class="comment" style="width:100%;">
+                            <div class="row">
+                                <div class="col-6 d-flex justify-content-start">
+                                    <h6 class="">
+                                        <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${c.user.id}}" th:text="${c.user.fullName}"></a>
+                                    </h6>
+                                </div>
+                                <div class="col-6 mt-2 d-flex justify-content-end"
+                                     th:if="${user.id==#authentication.getPrincipal().id || c.user.id==#authentication.getPrincipal().id}">
+
+                                    <i class='far fa-trash-alt' style='font-size:16px' data-bs-toggle="modal" data-bs-target="#deleteCommentModal"
+                                       th:onclick="'deleteComment('+${c.id}+')'"></i>
+                                    <script>
+                                        function deleteComment(id){
+                                            document.getElementById("commentId").value=id;
+                                        }
+                                    </script>
+                                </div>
+                            </div>
+<!--                            <h6 class="">-->
+<!--                                <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${c.user.id}}" th:text="${c.user.fullName}"></a>-->
+<!--                            </h6>-->
+                            <p class="card-subtitle mb-1 text-muted"><small><span th:text="${c.createdAt}"></span></small></p>
+                            <h6 class="ms-5" th:text="${c.text}"></h6>
+                            <hr class="post">
+                        </div>
+
+                        <form th:action="@{'/addcomment'}" method="post">
+                            <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
+                            <input type="hidden" name="post.id" th:value="${p.id}">
+                            <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
+                            <div class="row ms-2">
+                                <div class="col-10">
+                                    <input type="text" class="form-control form-control-sm mt-2" name="text" th:placeholder="#{writeAComment}" required>
+                                </div>
+                                <div class="col d-flex justify-content-center">
+                                    <button type="submit" class="btn btn-success mt-2 btn-sm w-100">
+                                        <i class='far fa-comment-alt'></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-3" th:if="${posts.size()==0}">
+                    <div class="card-header" >
+                        <span th:text="#{allPosts}"></span>
+                    </div>
+                    <div class="card-body mt-5 mb-5" th:if="${posts.size()==0}">
+                        <div class="text-center" th:if="${user.id==#authentication.getPrincipal().id}">
+                            <h6>You don't have any posts yet.</h6>
+                        </div>
+                        <div class="text-center" th:unless="${user.id==#authentication.getPrincipal().id}">
+                            <h6>This person has no posts yet.</h6>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="modal fade" id="editPostModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editPostLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="@{'/editpost'}" method="post" enctype="multipart/form-data">
+<!--                                <input type="hidden" name="user_id" th:value="${#authentication.getPrincipal().id}">-->
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editPostLabel"><span th:text="#{addNewPost}"></span></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <label><span th:text="#{postText}"></span>:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-12">
+                                            <textarea class="form-control" name="post" th:placeholder="#{writeText}" cols="50" rows="5" id="text" required></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <label><span th:text="#{choosePostImage}"></span>:</label>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-12">
+                                            <input class="form-control form-control-sm" type="file" name="post_image">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><span th:text="#{close}"></span></button>
+                                    <button type="submit" class="btn btn-success btn-sm"><span th:text="#{addPost}"></span></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="deletePostModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deletePostModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="${'/deletepost'}" method="post">
+                                <input type="hidden" name="post_id" id="postId">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deletePostModalLabel">Confirm delete</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No</button>
+                                    <button type="submit" class="btn btn-danger btn-sm">Yes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="deleteCommentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteCommentModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="${'/deletecomment'}" method="post">
+                                <input type="hidden" name="comment_id" id="commentId">
+                                <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteCommentModalLabel">Confirm delete</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No</button>
+                                    <button type="submit" class="btn btn-danger btn-sm">Yes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</html>

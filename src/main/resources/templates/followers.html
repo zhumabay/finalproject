@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/main.html">
+
+    <div layout:fragment="mainContent">
+
+        <div class="row mt-4 mb-3 justify-content-center">
+            <div class="col-md-8">
+
+                <div class="card">
+                    <div class="card-header">
+                        <a th:href="@{'/usersprofile/'+${user.id}}">
+                            <img th:src="@{'/getavatar/'+${user.avatarUrl}}" alt="Avatar" class="righthead">
+                        </a>
+                        <ul class="nav nav-tabs card-header-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" th:href="@{'/friends/'+${user.id}}"><span th:text="#{allFriends}"></span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" th:href="@{'/online/'+${user.id}}"><span th:text="#{online}"></span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" th:href="@{'/followers/'+${user.id}}"><span th:text="#{followers}"></span></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <form action="/" method="post">
+                                <div class="row mt-1 mb-1">
+                                    <div class="col-10">
+                                        <input type="text" class="form-control form-control-sm" name="" th:placeholder="#{writeFullName}" required>
+                                    </div>
+                                    <div class="col d-flex justify-content-center">
+                                        <button class="btn btn-primary btn-sm w-100" type="button"><span th:text="#{search}"></span></button>
+                                    </div>
+                                </div>
+                            </form>
+                        </li>
+                    </ul>
+                    <div class="" th:each="follower : ${followers}">
+                        <img th:src="@{'/getavatar/'+${follower.avatarUrl}}" alt="Avatar" class="users" style="width:100%;">
+                        <h6><a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${follower.id}}"><span th:text="${follower.fullName}"></span></a></h6>
+                        <p>
+                            <small>
+                                <a th:href="@{'/chat/'+${follower.id}}" th:if="${follower.id!=#authentication.getPrincipal().id}"><span th:text="#{writeMes}"></span></a>
+                                <a class="invisible" th:unless="${follower.id!=#authentication.getPrincipal().id}">Write message</a>
+                            </small>
+                        </p>
+                        <button type="button" class="btn btn-sm border-0" th:if="${follower.id==#authentication.getPrincipal().id}"></button>
+
+                        <button type="submit" class="btn btn-danger btn-sm" th:if="${myFriends.contains(follower)}"
+                                data-bs-toggle="modal" data-bs-target="#deleteFriendModal" th:onclick="'deleteFriend('+${follower.id}+')'">
+                            <span th:text="#{unfriend}"></span> <i class='fas fa-user-times'></i>
+                        </button>
+                        <script>
+                            function deleteFriend(id){
+                                document.getElementById("friendId").value=id;
+                            }
+                        </script>
+
+                        <form th:action="@{'/undorequest'}" method="post" th:if="${myFollowings.contains(follower)}">
+                            <input type="hidden" name="receiver_id" th:value="${follower.id}">
+                            <input type="hidden" name="direction" th:value="${'followers/'+user.id}">
+                            <button type="submit" class="btn btn-secondary btn-sm">
+                                <span th:text="#{undo}"></span> <i class='fas fa-user-minus'></i>
+                            </button>
+                        </form>
+                        <form th:action="@{'/acceptrequest'}" method="post" th:if="${myFollowers.contains(follower)}">
+                            <input type="hidden" name="sender_id" th:value="${follower.id}">
+                            <input type="hidden" name="direction" th:value="${'followers/'+user.id}">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <span th:text="#{acceptRequest}"></span> <i class='fas fa-user-check'></i>
+                            </button>
+                        </form>
+                        <form th:action="@{'/sendrequest'}" method="post"
+                              th:if="${!myFriends.contains(follower) && !myFollowers.contains(follower)
+                              && !myFollowings.contains(follower) && follower.id!=#authentication.getPrincipal().id}">
+
+                            <input type="hidden" name="receiver_id" th:value="${follower.id}">
+                            <input type="hidden" name="direction" th:value="${'followers/'+user.id}">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <span th:text="#{addFriend}"></span> <i class='fas fa-user-plus'></i>
+                            </button>
+                        </form>
+
+                        <hr class="people" th:if="${followers.indexOf(follower)!=followers.size()-1}">
+                        <hr class="last" th:unless="${followers.indexOf(follower)!=followers.size()-1}">
+                    </div>
+                    <div class="card-body mt-5 mb-5" th:if="${followers.size()==0}">
+                        <div class="text-center" th:if="${user.id==#authentication.getPrincipal().id}">
+                            <h6>You don't have followers yet.</h6>
+                        </div>
+                        <div class="text-center" th:unless="${user.id==#authentication.getPrincipal().id}">
+                            <h6><span th:text="${user.fullName}"></span> has no followers yet.</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="deleteFriendModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteFriendModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="${'/deletefriend'}" method="post">
+                                <input type="hidden" name="friend_id" id="friendId">
+                                <input type="hidden" name="direction" th:value="${'followers/'+user.id}">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteFriendModalLabel">Confirm delete</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No</button>
+                                    <button type="submit" class="btn btn-danger btn-sm">Yes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</html>

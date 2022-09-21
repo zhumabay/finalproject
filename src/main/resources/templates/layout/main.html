@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+  <head>
+      <meta charset="UTF-8">
+      <title>Social Network</title>
+      <link rel="stylesheet" th:href="@{'/css/bootstrap.min.css'}">
+      <script type="text/javascript" th:src="@{'/js/bootstrap.bundle.js'}"></script>
+      <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+      <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+      <style>
+          .darker {
+              border-color: #ccc;
+              background-color: #f1f1f1;
+          }
+
+          .container img.users {
+              float: left;
+              max-width: 80px;
+              width: 100%;
+              margin-right: 10px;
+              margin-left: 10px;
+              margin-top: 10px;
+              border-radius: 50%;
+          }
+
+          .container img.left {
+              float: left;
+              max-width: 60px;
+              width: 100%;
+              margin-right: 20px;
+              border-radius: 50%;
+          }
+
+          .container img.post {
+              float: left;
+              max-width: 60px;
+              width: 100%;
+              margin-right: 20px;
+              border-radius: 50%;
+          }
+          .container img.comment {
+              float: left;
+              max-width: 40px;
+              width: 100%;
+              margin-right: 10px;
+              margin-top: 10px;
+              border-radius: 50%;
+          }
+          .container img.messages {
+              float: left;
+              max-width: 60px;
+              width: 100%;
+              margin-right: 10px;
+              margin-left: 10px;
+              margin-bottom: 10px;
+              border-radius: 50%;
+          }
+
+          .container img.right {
+              float: right;
+              max-width: 60px;
+              width: 100%;
+              margin-left: 20px;
+              border-radius: 50%;
+              margin-right:0;
+          }
+          .container img.righthead {
+              float: right;
+              max-width: 31px;
+              width: 100%;
+              border-radius: 50%;
+          }
+          .container img.rightheadchat {
+              float: right;
+              max-width: 40px;
+              width: 100%;
+              border-radius: 50%;
+          }
+
+          .time-right {
+              float: right;
+              color: #aaa;
+          }
+
+          .time-left {
+              float: left;
+              color: #999;
+          }
+
+          hr.post {
+              display: block;
+              margin-top: 0.1em;
+              margin-bottom: 0.1em;
+              margin-left: auto;
+              margin-right: auto;
+              border-style: inset;
+              border-width: 1px;
+          }
+
+          hr.people {
+              display: block;
+              margin-top: 10px;
+              margin-bottom: 0.1em;
+              margin-left: auto;
+              margin-right: auto;
+              border-style: inset;
+              border-width: 1px;
+          }
+          hr.last {
+              display: block;
+              margin-top: 10px;
+              margin-bottom: 0.1px;
+              margin-left: auto;
+              margin-right: auto;
+              border-style: inset;
+              border-width: 0px;
+          }
+
+          hr.messages {
+              display: block;
+              margin-top: 20px;
+              margin-bottom: 0px;
+              margin-left: auto;
+              margin-right: auto;
+              border-style: inset;
+              border-width: 1px;
+          }
+      </style>
+
+  </head>
+  <body>
+    <div class="container col-9 mt-5">
+        <nav class="navbar navbar-expand-lg navbar-dark border-bottom fixed-top" style="background-color: #233549">
+            <div class="container-fluid col-9">
+                <a class="navbar-brand ms-4" th:href="@{'/'}">TextMe</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+<!--                <form class="d-flex" role="search">-->
+<!--                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">-->
+<!--                    <button class="btn btn-outline-light" type="submit">Search</button>-->
+<!--                </form>-->
+                <div class="d-flex">
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span th:text="${#authentication.getPrincipal().fullName}"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{'/usersprofile/'+${#authentication.getPrincipal().getId()}}">
+                                            <i class="fas fa-user-circle"></i> <span th:text="#{profile}"></span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{'/editprofile'}"><i class="fas fa-user-edit"></i> <span th:text="#{editProfile}"></span></a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#"><i class="fas fa-user-cog"></i> <span th:text="#{settings}"></span></a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="JavaScript:void(0)" onclick="signOutForm.submit()">
+                                            <i class="fas fa-sign-in-alt"></i> <span th:text="#{signOut}"></span>
+                                        </a>
+                                    </li>
+                                    <form th:action="@{'/signout'}" method="post" id="signOutForm"></form>
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </nav>
+        <div class="w3-sidebar w3-light w3-bar-block text-light" style="background-color: #233549; width:15%">
+
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 mt-3">
+                <li sec:authorize="isAnonymous()">
+                    <a class="w3-bar-item w3-button" th:href="@{'/'}"><i class="fa fa-home"></i> <span th:text="#{home}"></span></a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a class="w3-bar-item w3-button" th:href="@{'/usersprofile/'+${#authentication.getPrincipal().getId()}}">
+                        <i class="fas fa-user-circle"></i> <span th:text="#{profile}"></span>
+                    </a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a class="w3-bar-item w3-button" th:href="@{'/news'}"><i class="far fa-newspaper"></i> <span th:text="#{news}"></span></a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a class="w3-bar-item w3-button" th:href="@{'/friends/'+${#authentication.getPrincipal().id}}">
+                        <i class="fas fa-user-friends"></i> <span th:text="#{friends}"></span>
+                    </a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a class="w3-bar-item w3-button" th:href="@{'/messages'}"><i class="far fa-comments"></i> <span th:text="#{messages}"></span></a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a class="w3-bar-item w3-button" th:href="@{'/search'}"><i class="fa fa-search"></i> <span th:text="#{search}"></span></a>
+                </li>
+                <li sec:authorize="isAnonymous()">
+                    <a class="w3-bar-item w3-button" th:href="@{'/signin'}"><i class="fas fa-sign-in-alt"></i> <span th:text="#{signIn}"></span></a>
+                </li>
+                <li sec:authorize="isAnonymous()">
+                    <a class="w3-bar-item w3-button" th:href="@{'/signup'}"><i class="fas fa-user-plus"></i> <span th:text="#{signUp}"></span></a>
+                </li>
+                <li sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                    <a class="w3-bar-item w3-button" th:href="@{'/admin/index'}">Admin Panel</a>
+                </li>
+                <hr>
+                <li class="w3-bar-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span th:text="#{language}"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" th:href="@{'?language=en'}">
+                                English
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{'?language=ru'}">
+                                Русский
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{'?language=kaz'}">
+                                Қазақша
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+
+        <div style="margin-left:15%">
+
+            <div class="w3-container">
+                <div layout:fragment="mainContent">
+
+                </div>
+            </div>
+    </div>
+
+  </body>
+</html>
