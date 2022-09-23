@@ -98,3 +98,18 @@ CREATE TABLE likes(
          FOREIGN KEY (post_id)
              REFERENCES posts (id)
 );
+
+CREATE TABLE reports(
+      id SERIAL PRIMARY KEY NOT NULL,
+      user_id INT DEFAULT 0,
+      CONSTRAINT fk_reports_users
+          FOREIGN KEY (user_id)
+              REFERENCES users (id),
+      post_id INT DEFAULT 0,
+      CONSTRAINT fk_reports_posts
+          FOREIGN KEY (post_id)
+              REFERENCES posts (id),
+      handled BOOLEAN DEFAULT FALSE,
+      type TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

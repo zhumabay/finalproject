@@ -94,12 +94,6 @@
                             <h6><span th:text="${user.fullName}"></span> has no online friends yet.</h6>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <h2>Currently logged in users</h2>
-                        <div th:each="user : ${users}">
-                            <p th:text="${user}">user</p>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="modal fade" id="deleteFriendModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteFriendModalLabel" aria-hidden="true">

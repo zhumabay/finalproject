@@ -97,6 +97,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(User user) {
+        user.setOnline(true);
         return userRepository.save(user);
     }
 }

@@ -29,7 +29,7 @@ public class MainController {
     private final UserRelationshipService userRelationshipService;
     private final FileUploadService fileUploadService;
     private final ActiveUserStore activeUserStore;
-    private final LikeService likeService;
+    private final ReportService reportService;
 
     @Value("${loadURL}")
     private String loadURL;
@@ -50,6 +50,7 @@ public class MainController {
         List<Post> posts = postService.getPostsOfUser(user);
         model.addAttribute("posts", posts);
         model.addAttribute("comments", commentService.getCommentsOfPosts(posts));
+        model.addAttribute("reportedposts", reportService.getReportedPosts(posts));
         return "profile";
     }
 
@@ -59,6 +60,7 @@ public class MainController {
         List<Post> posts = postService.getPostsOfFriends(userService.getCurrentUser());
         model.addAttribute("posts", posts);
         model.addAttribute("comments", commentService.getCommentsOfPosts(posts));
+        model.addAttribute("reportedposts", reportService.getReportedPosts(posts));
         return "news";
     }
 
@@ -234,14 +236,16 @@ public class MainController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/deletepost")
     public String deletePost(@RequestParam(name = "post_id") Long postId) {
+        Post post = postService.getPost(postId);
         postService.deletePost(postId);
-        return "redirect:/usersprofile/" + userService.getCurrentUser().getId();
+        return "redirect:/usersprofile/" + post.getUser().getId();
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping(value = "/addcomment")
-    public String addComment(Comment comment, @RequestParam(name = "direction") String direction) {
-        commentService.addComment(comment);
+    @PostMapping(value = "/addreport")
+    public String addReport(Report report, @RequestParam(name = "direction") String direction) {
+        System.out.println(report.getUser().getId());
+        reportService.addReport(report);
         return "redirect:/" + direction;
     }
 

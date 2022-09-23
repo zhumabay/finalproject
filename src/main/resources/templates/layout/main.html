@@ -154,9 +154,6 @@
                                     <li>
                                         <a class="dropdown-item" th:href="@{'/editprofile'}"><i class="fas fa-user-edit"></i> <span th:text="#{editProfile}"></span></a>
                                     </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#"><i class="fas fa-user-cog"></i> <span th:text="#{settings}"></span></a>
-                                    </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item" href="JavaScript:void(0)" onclick="signOutForm.submit()">
@@ -205,7 +202,7 @@
                     <a class="w3-bar-item w3-button" th:href="@{'/signup'}"><i class="fas fa-user-plus"></i> <span th:text="#{signUp}"></span></a>
                 </li>
                 <li sec:authorize="hasAnyRole('ROLE_ADMIN')">
-                    <a class="w3-bar-item w3-button" th:href="@{'/admin/index'}">Admin Panel</a>
+                    <a class="w3-bar-item w3-button" th:href="@{'/admin/index'}"><i class='fas fa-user-secret'></i> Reports</a>
                 </li>
                 <hr>
                 <li class="w3-bar-item dropdown">

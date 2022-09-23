@@ -12,9 +12,18 @@
                     </div>
                     <div class="card-body" >
                         <img th:src="@{'/getavatar/'+${p.user.avatarUrl}}" alt="Avatar" class="post" style="width:100%;">
-                        <h5 class="card-title">
-                            <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${p.user.id}}" th:text="${p.user.fullName}"></a>
-                        </h5>
+                        <div class="row">
+                            <div class="col-6 d-flex justify-content-start">
+                                <h5 class="card-title">
+                                    <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${p.user.id}}" th:text="${p.user.fullName}"></a>
+                                </h5>
+                            </div>
+                            <div class="col-6 d-flex justify-content-end">
+                                <i class='far fa-flag' data-bs-toggle="modal" data-bs-target="#reportPostModal"
+                                   th:onclick="'reportPost('+${p.id}+')'" th:if="${!reportedposts.contains(p)}"></i>
+                                <i class='fas fa-flag-checkered' th:unless="${!reportedposts.contains(p)}"></i>
+                            </div>
+                        </div>
                         <h6 class="card-subtitle mb-3 text-muted"><small><span th:text="${p.createdAt}"></span></small></h6>
                         <p class="card-text" th:text="${p.text}"></p>
                         <img th:src="@{'/getimage/'+${p.imageUrl}}" class="img-fluid rounded-start" alt="Image" th:if="${!p.imageUrl.equals('default')}">
@@ -59,6 +68,36 @@
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteComment()">Yes</button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="reportPostModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="reportPostModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="${'/addreport'}" method="post">
+                                <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
+                                <input type="hidden" name="post.id" id="repPostId">
+                                <input type="hidden" name="direction" th:value="${'news'}">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="reportPostModalLabel">Report post</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    What do you want to report this content for?
+
+                                    <select class="form-select mt-3" name="type">
+                                        <option selected>Open this select menu</option>
+                                        <option value="spam">Spam</option>
+                                        <option value="adult">Adult content</option>
+                                        <option value="copied">Copied content</option>
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary btn-sm">Report</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -238,7 +277,9 @@
                     loadPosts();
                 }
             }
-
+            function reportPost(id){
+                document.getElementById("repPostId").value=id;
+            }
         </script>
     </div>
 

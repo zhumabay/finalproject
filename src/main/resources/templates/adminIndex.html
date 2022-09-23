@@ -2,9 +2,79 @@
 <html lang="en" xmlns:th = "http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/main.html">
 
-    <div class="row" layout:fragment="mainContent">
-        <div class="col-12">
-            <h1 class="text-center">Welcome to Admin Page</h1>
+<div layout:fragment="mainContent">
+    <div class="row mt-4 justify-content-center">
+        <div class="col-md-7">
+
+            <div class="card mb-3" th:each="a : ${reports}">
+                <div class="card-header" th:if="${reports.indexOf(a)==0}">
+                    All reports
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <b><span th:if="${!a.handled}" style="color:red;">*(New)</span></b>
+                        From <b><span th:text="${a.user.fullName}"></span></b>
+                    </h5>
+                    <br>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        Post author: <b><span th:text="${a.post.user.fullName}"></span></b>
+                    </h6>
+                    <p class="card-text">Type: <span th:text="${a.type}"></span></p>
+                    <div class="row">
+                        <div class="col-2">
+                            <form th:action="${'/admin/checkreport'}" method="post">
+                                <input type="hidden" name="report_id" th:value="${a.id}">
+                                <button class="btn btn-success btn-sm">Check</button>
+                            </form>
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteReportModal"
+                                    th:onclick="'deleteReport('+${a.id}+')'">Delete</button>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="card mb-3" th:if="${reports.size()==0}">
+                <div class="card-header">
+                    All reports
+                </div>
+                <div class="card-body mt-5 mb-5">
+                    <div class="text-center">
+                        <h6>No reports yet.</h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="deleteReportModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deletePostModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form th:action="${'/admin/deletereport'}" method="post">
+                            <input type="hidden" name="report_id" id="reportId">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deletePostModalLabel">Confirm delete</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No</button>
+                                <button type="submit" class="btn btn-danger btn-sm">Yes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
+    <script>
+        function deleteReport(id){
+            document.getElementById("reportId").value=id;
+        }
+    </script>
+</div>
 </html>

@@ -152,10 +152,15 @@
                                     <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${p.user.id}}" th:text="${p.user.fullName}"></a>
                                 </h5>
                             </div>
-                            <div class="col-6 d-flex justify-content-end" th:if="${user.id==#authentication.getPrincipal().id}">
+                            <div class="col-6 d-flex justify-content-end" th:if="${user.id==#authentication.getPrincipal().id || #authentication.getPrincipal().roles.get(0).role.equals('ROLE_ADMIN')}">
                                 <i class='far fa-edit me-1' th:onclick="'openPostEditModal('+${p.id}+')'"></i>
                                 <i class='far fa-trash-alt' data-bs-toggle="modal" data-bs-target="#deletePostModal"
                                    th:onclick="'deletePost('+${p.id}+')'"></i>
+                            </div>
+                            <div class="col-6 d-flex justify-content-end" th:if="${user.id!=#authentication.getPrincipal().id && !#authentication.getPrincipal().roles.get(0).role.equals('ROLE_ADMIN')}">
+                                <i class='far fa-flag' data-bs-toggle="modal" data-bs-target="#reportPostModal"
+                                   th:onclick="'reportPost('+${p.id}+')'" th:if="${!reportedposts.contains(p)}"></i>
+                                <i class='fas fa-flag-checkered' th:unless="${!reportedposts.contains(p)}"></i>
                             </div>
                         </div>
                         <h6 class="card-subtitle mb-3 text-muted"><small th:text="${p.createdAt}"></small></h6>
@@ -242,6 +247,36 @@
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No</button>
                                     <button type="submit" class="btn btn-danger btn-sm">Yes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="reportPostModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="reportPostModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="${'/addreport'}" method="post">
+                                <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
+                                <input type="hidden" name="post.id" id="repPostId">
+                                <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="reportPostModalLabel">Report post</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    What do you want to report this content for?
+
+                                    <select class="form-select mt-3" name="type">
+                                        <option selected>Open this select menu</option>
+                                        <option value="Spam">Spam</option>
+                                        <option value="Adult content">Adult content</option>
+                                        <option value="Copied content">Copied content</option>
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary btn-sm">Report</button>
                                 </div>
                             </form>
                         </div>
@@ -352,6 +387,8 @@
             }
 
             function loadComments(){
+                // alert("loadCOmments")
+                console.log("load")
                 const xhhtp = new XMLHttpRequest();
                 xhhtp.onload = function(){
                     var comments = JSON.parse(this.responseText);
@@ -397,9 +434,10 @@
 
                 const xhhtp = new XMLHttpRequest();
                 xhhtp.onload = function(){
-                    loadPosts();
+
                     clearComments();
                     loadComments();
+                    loadPosts();
                 }
                 xhhtp.open("POST", "http://localhost:8000/comment");
                 xhhtp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
@@ -407,14 +445,17 @@
             }
 
             function clearComments(){
+                // alert("clear")
+                console.log("clear")
+
                 const xhhtp = new XMLHttpRequest();
                 xhhtp.onload = function(){
-                    var comments = JSON.parse(this.responseText);
-                    for(var i = 0; i<comments.length; i++){
-                        document.getElementById(comments[i].post.id+'_commentContent').innerHTML = "";
+                    var posts = JSON.parse(this.responseText);
+                    for(var i = 0; i<posts.length; i++){
+                        document.getElementById(posts[i].id+'_commentContent').innerHTML = "";
                     }
                 }
-                xhhtp.open("GET", "http://localhost:8000/comment/"+userId.value);
+                xhhtp.open("GET", "http://localhost:8000/post/profile/"+userId.value);
                 xhhtp.send();
             }
 
@@ -429,9 +470,10 @@
 
                 const xhhtp = new XMLHttpRequest();
                 xhhtp.onload = function(){
-                    loadPosts();
+
                     clearComments();
                     loadComments();
+                    loadPosts();
                 }
                 xhhtp.open("DELETE", "http://localhost:8000/comment/"+deleteCommentId.value);
                 xhhtp.send();
@@ -460,9 +502,11 @@
                     loadPosts();
                 }
             }
-            function deletePost(id){
-                alert(id);
-                document.getElementById("postId").value=id;
+                function deletePost(id){
+                    document.getElementById("postId").value=id;
+                }
+            function reportPost(id){
+                document.getElementById("repPostId").value=id;
             }
         </script>
 
