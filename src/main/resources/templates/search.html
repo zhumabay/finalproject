@@ -44,11 +44,17 @@
                             </small>
                         </p>
                         <button type="button" class="btn btn-sm border-0" th:if="${u.id==#authentication.getPrincipal().id}"></button>
-                        <form th:action="@{'/deletefriend'}" method="post" th:if="${myFriends.contains(u)}">
-                            <input type="hidden" name="friend_id" th:value="${u.id}">
-                            <input type="hidden" name="direction" th:value="${'search'}">
-                            <button type="submit" class="btn btn-danger btn-sm"><span th:text="#{unfriend}"></span> <i class='fas fa-user-times'></i></button>
-                        </form>
+
+                        <button type="submit" class="btn btn-danger btn-sm" th:if="${myFriends.contains(u)}"
+                                data-bs-toggle="modal" data-bs-target="#deleteFriendModal" th:onclick="'deleteFriend('+${u.id}+')'">
+                            <span th:text="#{unfriend}"></span> <i class='fas fa-user-times'></i>
+                        </button>
+                        <script>
+                            function deleteFriend(id){
+                                document.getElementById("friendId").value=id;
+                            }
+                        </script>
+
                         <form th:action="@{'/undorequest'}" method="post" th:if="${myFollowings.contains(u)}">
                             <input type="hidden" name="receiver_id" th:value="${u.id}">
                             <input type="hidden" name="direction" th:value="${'search'}">
@@ -74,6 +80,27 @@
 
                 </div>
 
+                <div class="modal fade" id="deleteFriendModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteFriendModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="${'/deletefriend'}" method="post">
+                                <input type="hidden" name="friend_id" id="friendId">
+                                <input type="hidden" name="direction" th:value="${'search'}">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteFriendModalLabel">Confirm delete</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No</button>
+                                    <button type="submit" class="btn btn-danger btn-sm">Yes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
