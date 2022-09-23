@@ -12,6 +12,7 @@ import java.util.List;
 @Transactional
 public interface FriendRequestRepository extends JpaRepository<FriendRequest, Long> {
     List<FriendRequest> findAllByReceiver(User user);
+    List<FriendRequest> findAllByReceiverAndStatus(User user, String status);
     List<FriendRequest> findAllBySender(User user);
     FriendRequest findBySenderAndReceiver(User sender, User receiver);
 

@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUser(String email){
+    public User getUser(String email) {
         return userRepository.findByEmail(email);
     }
 
@@ -51,14 +51,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User foundUser = getUser(username);
-        if (foundUser!=null){
+        if (foundUser != null) {
             return foundUser;
-        } throw new UsernameNotFoundException("User Name not found");
+        }
+        throw new UsernameNotFoundException("User Name not found");
     }
 
     @Override
-    public User addUser(User user, String rePassword){
-        if(user.getPassword().equals(rePassword)) {
+    public User addUser(User user, String rePassword) {
+        if (user.getPassword().equals(rePassword)) {
             User foundUser = getUser(user.getEmail());
             if (foundUser == null) {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -75,7 +76,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!(authentication instanceof AnonymousAuthenticationToken)){ //не анонимный
+        if (!(authentication instanceof AnonymousAuthenticationToken)) { //не анонимный
             return (User) authentication.getPrincipal();
         }
         return null;
@@ -83,9 +84,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateUserPassword(String oldPassword, String newPassword, String reNewPassword) {
-        if (newPassword.equals(reNewPassword)){
+        if (newPassword.equals(reNewPassword)) {
             User currentUser = getCurrentUser();
-            if (currentUser!=null && passwordEncoder.matches(oldPassword, currentUser.getPassword())){
+            if (currentUser != null && passwordEncoder.matches(oldPassword, currentUser.getPassword())) {
                 currentUser.setPassword(passwordEncoder.encode(newPassword));
                 userRepository.save(currentUser);
                 return true;

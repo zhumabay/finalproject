@@ -32,7 +32,8 @@ public class FriendRequestServiceImpl implements FriendRequestService {
 
     @Override
     public List<FriendRequest> getRequestsOfUser(User user) {
-        return friendRequestRepository.findAllByReceiver(user);
+        String status = "processed";
+        return friendRequestRepository.findAllByReceiverAndStatus(user, status);
     }
 
     @Override
@@ -96,6 +97,19 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         request.setReceiver(receiver);
         request.setStatus("processed");
         return friendRequestRepository.save(request);
+    }
+
+    @Override
+    public FriendRequest keepFollower(Long senderId) {
+        FriendRequest request = getRequest(userService.getUser(senderId), userService.getCurrentUser());
+        request.setStatus("follower");
+        return friendRequestRepository.save(request);
+    }
+
+    @Override
+    public void deleteFollower(Long senderId) {
+        FriendRequest request = getRequest(userService.getUser(senderId), userService.getCurrentUser());
+        friendRequestRepository.delete(request);
     }
 
     @Override

@@ -1,11 +1,16 @@
 package kz.bitlab.bootcamp.finalproject.services.impl;
 
+import kz.bitlab.bootcamp.finalproject.dto.LikeDto;
+import kz.bitlab.bootcamp.finalproject.dto.PostDto;
+import kz.bitlab.bootcamp.finalproject.mapper.LikeMapper;
+import kz.bitlab.bootcamp.finalproject.mapper.PostMapper;
 import kz.bitlab.bootcamp.finalproject.models.Like;
 import kz.bitlab.bootcamp.finalproject.models.Post;
 import kz.bitlab.bootcamp.finalproject.models.User;
 import kz.bitlab.bootcamp.finalproject.repositories.LikeRepository;
 import kz.bitlab.bootcamp.finalproject.repositories.PostRepository;
 import kz.bitlab.bootcamp.finalproject.services.LikeService;
+import kz.bitlab.bootcamp.finalproject.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,41 +22,42 @@ import java.util.List;
 public class LikeServiceImpl implements LikeService {
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
+    private final PostMapper postMapper;
+    private final LikeMapper likeMapper;
+    private final UserService userService;
 
     @Override
-    public Like addLike(Like like) {
+    public LikeDto addDtoLike(LikeDto likeDto) {
+        Like like = likeMapper.toEntity(likeDto);
+        like.setUser(userService.getCurrentUser());
         if (likeRepository.findByUserIdAndPostId(like.getUser().getId(), like.getPost().getId())==null){
             Post post = postRepository.findById(like.getPost().getId()).orElseThrow();
             post.setLikesAmount(post.getLikesAmount()+1);
             postRepository.save(post);
-            return likeRepository.save(like);
+            return likeMapper.toDto(likeRepository.save(like));
         }
         return null;
     }
 
     @Override
-    public boolean deleteLike(Like like) {
-        Like like1 = likeRepository.findByUserIdAndPostId(like.getUser().getId(), like.getPost().getId());
-        if (like1!=null){
+    public void deleteDtoLike(Long likeId) {
+        Like like = likeRepository.findByUserIdAndPostId(userService.getCurrentUser().getId(), likeId);
+        if (like!=null){
             Post post = postRepository.findById(like.getPost().getId()).orElseThrow();
             post.setLikesAmount(post.getLikesAmount()-1);
             postRepository.save(post);
-            likeRepository.delete(like1);
-            return true;
+            likeRepository.delete(like);
         }
-        return false;
     }
 
     @Override
-    public List<Post> getLikedPostsOfUser(User user, List<Post> posts) {
+    public List<PostDto> getLikedDtoPostsOfUser(User user, List<PostDto> posts) {
         List<Post> likedPosts = new ArrayList<>();
-        for (Post post : posts) {
+        for (Post post : postMapper.toEntityList(posts)) {
             if (likeRepository.findByUserAndPost(user, post)!=null){
                 likedPosts.add(post);
             }
         }
-        return likedPosts;
+        return postMapper.toDtoList(likedPosts);
     }
-
-
 }

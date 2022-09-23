@@ -16,11 +16,12 @@
                         <p><a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${request.sender.id}}"><span th:text="${request.sender.fullName}"></span></a></p>
                         <form th:action="@{'/acceptrequest'}" method="post">
                             <input type="hidden" name="sender_id" th:value="${request.sender.id}">
-                            <input type="hidden" name="direction" th:value="${'friends/'+userId}">
+                            <input type="hidden" name="direction" th:value="${'friends/'+#authentication.getPrincipal().id}">
                             <button type="submit" class="btn btn-primary btn-sm"><span th:text="#{acceptRequest}"></span> <i class='fas fa-user-check'></i></button>
                         </form>
-                        <form th:action="@{'/'}" method="post">
-
+                        <form th:action="@{'/keepfollower'}" method="post">
+                            <input type="hidden" name="sender_id" th:value="${request.sender.id}">
+                            <input type="hidden" name="direction" th:value="${'friends/'+#authentication.getPrincipal().id}">
                             <button type="submit" class="btn btn-secondary mt-2 btn-sm"><span th:text="#{keepAsFollower}"></span> <i class='fas fa-user-clock'></i></button>
                         </form>
                     </div>

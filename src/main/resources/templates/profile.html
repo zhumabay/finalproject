@@ -3,7 +3,6 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/main.html">
 
     <div layout:fragment="mainContent">
-
         <div class="row mt-4 justify-content-center">
             <div class="col-md-9">
 
@@ -28,7 +27,7 @@
                                         </p>
                                     </div>
                                 </div>
-                                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                                <p class="card-text">Rich is not the one who has a lot, but the one who has enough.</p>
                                 <p class="card-text"><small class="text-muted"><span class="country">Almaty, Kazakhstan</span></small></p>
                                 <div class="row justify-content-center">
                                     <div class="col">
@@ -130,12 +129,17 @@
                                 <button type="submit" class="btn btn-primary btn-sm"><span th:text="#{acceptRequest}"></span> <i class='fas fa-user-check'></i></button>
                             </form>
 
-                            <button class="btn btn-secondary btn-sm mt-1" th:href="@{'/chat/'+${user.id}}">
-                                <span th:text="#{writeMes}"></span> <i class="fa fa-pencil"></i>
-                            </button>
+                            <a th:href="@{'/chat/'+${user.id}}">
+                                <button class="btn btn-secondary btn-sm mt-1">
+                                    <span th:text="#{writeMes}"></span> <i class="fa fa-pencil"></i>
+                                </button>
+                            </a>
+
                         </div>
                     </div>
                 </div>
+                <input type="hidden" id="curUserId" th:value="${#authentication.getPrincipal().id}">
+                <input type="hidden" id="userId" th:value="${user.id}">
                 <div class="card mb-3" th:each="p : ${posts}">
                     <div class="card-header" th:if="${posts.indexOf(p)==0}">
                         <span th:text="#{allPosts}"></span>
@@ -149,93 +153,18 @@
                                 </h5>
                             </div>
                             <div class="col-6 d-flex justify-content-end" th:if="${user.id==#authentication.getPrincipal().id}">
-                                <i class='far fa-edit me-1' data-bs-toggle="modal" data-bs-target="#editPostModal"
-                                   th:onclick="'editPost('+${p.id}+')'"></i>
+                                <i class='far fa-edit me-1' th:onclick="'openPostEditModal('+${p.id}+')'"></i>
                                 <i class='far fa-trash-alt' data-bs-toggle="modal" data-bs-target="#deletePostModal"
                                    th:onclick="'deletePost('+${p.id}+')'"></i>
-                                <script>
-                                    function editPost(id){
-                                        document.getElementById("postId").value=id;
-                                    }
-                                    function deletePost(id){
-                                        document.getElementById("postId").value=id;
-                                    }
-                                </script>
                             </div>
                         </div>
-                        <h6 class="card-subtitle mb-3 text-muted"><small><span th:text="${p.createdAt}"></span></small></h6>
+                        <h6 class="card-subtitle mb-3 text-muted"><small th:text="${p.createdAt}"></small></h6>
                         <p class="card-text" th:text="${p.text}"></p>
                         <img th:src="@{'/getimage/'+${p.imageUrl}}" class="img-fluid rounded-start" alt="Image" th:if="${!p.imageUrl.equals('default')}">
-                        <div class="row">
-                            <div class="col">
-                                <form th:action="@{'/addlike'}" method="post" th:if="${!likedPosts.contains(p)}">
-                                    <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
-                                    <input type="hidden" name="post.id" th:value="${p.id}">
-                                    <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
-                                    <button type="submit" class="btn border-0">
-                                        <i class='far fa-heart mt-2' style='font-size:16px'></i> <span th:text="${p.likesAmount}"></span>
-                                    </button>
-                                    <button type="button" class="btn border-0">
-                                        <i class='far fa-comment-alt mt-2'></i> <span th:text="${p.commentsAmount}"></span>
-                                    </button>
-                                </form>
-                                <form th:action="@{'/deletelike'}" method="post" th:unless="${!likedPosts.contains(p)}">
-                                    <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
-                                    <input type="hidden" name="post.id" th:value="${p.id}">
-                                    <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
-                                    <button type="submit" class="btn border-0">
-                                        <i class='fas fa-heart mt-2' style='font-size:16px'></i> <span th:text="${p.likesAmount}"></span>
-                                    </button>
-                                    <button type="button" class="btn border-0">
-                                        <i class='far fa-comment-alt mt-2'></i> <span th:text="${p.commentsAmount}"></span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        <div th:id="${p.id+'_postContent'}"></div>
                         <hr class="post">
-                        <div class="ms-3" th:each="c : ${comments}" th:if="${p.id==c.post.id}">
-                            <img th:src="@{'/getavatar/'+${c.user.avatarUrl}}" alt="Avatar" class="comment" style="width:100%;">
-                            <div class="row">
-                                <div class="col-6 d-flex justify-content-start">
-                                    <h6 class="">
-                                        <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${c.user.id}}" th:text="${c.user.fullName}"></a>
-                                    </h6>
-                                </div>
-                                <div class="col-6 mt-2 d-flex justify-content-end"
-                                     th:if="${user.id==#authentication.getPrincipal().id || c.user.id==#authentication.getPrincipal().id}">
-
-                                    <i class='far fa-trash-alt' style='font-size:16px' data-bs-toggle="modal" data-bs-target="#deleteCommentModal"
-                                       th:onclick="'deleteComment('+${c.id}+')'"></i>
-                                    <script>
-                                        function deleteComment(id){
-                                            document.getElementById("commentId").value=id;
-                                        }
-                                    </script>
-                                </div>
-                            </div>
-<!--                            <h6 class="">-->
-<!--                                <a class="text-dark" style="text-decoration: none" th:href="@{'/usersprofile/'+${c.user.id}}" th:text="${c.user.fullName}"></a>-->
-<!--                            </h6>-->
-                            <p class="card-subtitle mb-1 text-muted"><small><span th:text="${c.createdAt}"></span></small></p>
-                            <h6 class="ms-5" th:text="${c.text}"></h6>
-                            <hr class="post">
-                        </div>
-
-                        <form th:action="@{'/addcomment'}" method="post">
-                            <input type="hidden" name="user.id" th:value="${#authentication.getPrincipal().id}">
-                            <input type="hidden" name="post.id" th:value="${p.id}">
-                            <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
-                            <div class="row ms-2">
-                                <div class="col-10">
-                                    <input type="text" class="form-control form-control-sm mt-2" name="text" th:placeholder="#{writeAComment}" required>
-                                </div>
-                                <div class="col d-flex justify-content-center">
-                                    <button type="submit" class="btn btn-success mt-2 btn-sm w-100">
-                                        <i class='far fa-comment-alt'></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                        <div th:id="${p.id+'_commentContent'}"></div>
+                        <div th:id="${p.id+'_inputContent'}"></div>
                     </div>
                 </div>
 
@@ -253,18 +182,21 @@
                     </div>
                 </div>
 
-
-
-                <div class="modal fade" id="editPostModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editPostLabel" aria-hidden="true">
+                <div class="modal fade" id="postEditModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form th:action="@{'/editpost'}" method="post" enctype="multipart/form-data">
-<!--                                <input type="hidden" name="user_id" th:value="${#authentication.getPrincipal().id}">-->
+                            <form th:action="@{'/updatepost'}" method="post" enctype="multipart/form-data">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editPostLabel"><span th:text="#{addNewPost}"></span></h5>
+                                    <h5 class="modal-title" id="staticBackdropLabel1">Edit post</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
+                                    <input type="hidden" name="id" id="editPostId">
+<!--                                    <input type="hidden" name="createdAt" id="editPostCreatedAt">-->
+                                    <input type="hidden" name="user.id" id="editPostUser">
+                                    <input type="hidden" name="imageUrl" id="editPostImageUrl">
+                                    <input type="hidden" name="commentsAmount" id="editPostCommentsAmount">
+                                    <input type="hidden" name="likesAmount" id="editPostLikesAmount">
                                     <div class="row">
                                         <div class="col-12">
                                             <label><span th:text="#{postText}"></span>:</label>
@@ -272,7 +204,7 @@
                                     </div>
                                     <div class="row mt-2">
                                         <div class="col-12">
-                                            <textarea class="form-control" name="post" th:placeholder="#{writeText}" cols="50" rows="5" id="text" required></textarea>
+                                            <textarea class="form-control" name="text" th:placeholder="#{writeText}" id="editPostText" cols="50" rows="5" required></textarea>
                                         </div>
                                     </div>
                                     <div class="row mt-3">
@@ -288,7 +220,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><span th:text="#{close}"></span></button>
-                                    <button type="submit" class="btn btn-success btn-sm"><span th:text="#{addPost}"></span></button>
+                                    <button type="submit" class="btn btn-success btn-sm"><span th:text="#{save}"></span></button>
                                 </div>
                             </form>
                         </div>
@@ -319,27 +251,220 @@
                 <div class="modal fade" id="deleteCommentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteCommentModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form th:action="${'/deletecomment'}" method="post">
-                                <input type="hidden" name="comment_id" id="commentId">
-                                <input type="hidden" name="direction" th:value="${'usersprofile/'+user.id}">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteCommentModalLabel">Confirm delete</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteCommentModalLabel">Delete comment</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <input type="hidden" id="deleteCommentId">
+                                        <h6 class="text-center">
+                                            Are you sure?
+                                        </h6>
+                                    </div>
                                 </div>
-                                <div class="modal-body">
-                                    Are you sure?
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No</button>
-                                    <button type="submit" class="btn btn-danger btn-sm">Yes</button>
-                                </div>
-                            </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteComment()">Yes</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
+
+        <script>
+            function prepareData(){
+                loadPosts();
+                loadComments();
+            }
+
+            function loadPosts(){
+                const xhhtp = new XMLHttpRequest();
+                xhhtp.open("GET", "http://localhost:8000/post/profile/"+userId.value);
+                xhhtp.send();
+                xhhtp.onload = function(){
+                    var posts = JSON.parse(this.responseText);
+                    const xhttp_2= new XMLHttpRequest();
+                    xhttp_2.open("GET", "http://localhost:8000/post/likedposts/"+userId.value);
+                    xhttp_2.send();
+                    xhttp_2.onload = function () {
+                        var likedPosts = JSON.parse(xhttp_2.responseText);
+                        var postContent;
+                        for(var i = 0; i<posts.length; i++){
+
+                            if (likedPosts.find(l=>l.id==posts[i].id)==null){
+                                document.getElementById(posts[i].id+'_postContent').innerHTML =
+                                "<button type=\"button\" class=\"btn border-0\" onclick='addLike("+posts[i].id+")'>" +
+                                "<i class='far fa-heart mt-2' style='font-size:16px'></i> "+posts[i].likesAmount+
+                                "</button>" +
+                                "<button class='btn border-0'>" +
+                                "<i class='far fa-comment-alt mt-2'></i> "+posts[i].commentsAmount +
+                                "</button>";
+
+                            }else{
+                                postContent = "";
+                                postContent +="<button type=\"button\" class=\"btn border-0\" onclick='deleteLike("+posts[i].id+")'>";
+                                postContent +="<i class='fas fa-heart mt-2' style='font-size:16px'></i> "+posts[i].likesAmount;
+                                postContent +="</button>";
+                                postContent +="<button type=\"button\" class=\"btn border-0\">";
+                                postContent +="<i class='far fa-comment-alt mt-2'></i> "+posts[i].commentsAmount;
+                                postContent +="</button>";
+                                document.getElementById(posts[i].id+'_postContent').innerHTML = postContent;
+                            }
+
+                        }
+                        for (var i = 0; i<posts.length; i++){
+                            document.getElementById(posts[i].id+'_inputContent').innerHTML =
+                                "<div class=\"row ms-2\">" +
+                                "<div class=\"col-10\">" +
+                                "<input type=\"text\" class=\"form-control form-control-sm mt-2\" id=\""+posts[i].id+"_addCommentText\" placeholder=\"[[#{writeAComment}]]\" required>" +
+                                "</div>" +
+                                "<div class=\"col d-flex justify-content-center\">" +
+                                "<button type=\"button\" class=\"btn btn-success mt-2 btn-sm w-100\" onclick=\"addComment("+posts[i].id+")\">" +
+                                "<i class='far fa-comment-alt'></i>" +
+                                "</button>" +
+                                "</div>" +
+                                "</div>"
+                        }
+                    }
+                }
+            }
+
+            function openPostEditModal(postId){
+                const myModal = new bootstrap.Modal('#postEditModal', {backdrop:true, focus:false, keyboard:false});
+                const xhhtp = new XMLHttpRequest();
+                xhhtp.onload = function(){
+                    var post = JSON.parse(this.responseText);
+                    editPostId.value = post.id;
+                    editPostText.value = post.text;
+                    // editPostCreatedAt.value = post.createdAt;
+                    editPostUser.value = post.user.id;
+                    editPostImageUrl.value = post.imageUrl;
+                    editPostCommentsAmount.value = post.commentsAmount;
+                    editPostLikesAmount.value = post.likesAmount;
+                    myModal.show();
+                }
+                xhhtp.open("GET", "http://localhost:8000/post/"+postId);
+                xhhtp.send();
+            }
+
+            function loadComments(){
+                const xhhtp = new XMLHttpRequest();
+                xhhtp.onload = function(){
+                    var comments = JSON.parse(this.responseText);
+                    var commentContent;
+                    for(var i = 0; i<comments.length; i++){
+                        commentContent = "<div class=\"ms-3\">";
+                        commentContent += "<img src=\"/getavatar/"+comments[i].user.avatarUrl+"\" alt=\"Avatar\" class=\"comment\" style=\"width:100%;\">";
+                        commentContent += "<div class=\"row\">";
+                        commentContent += "<div class=\"col-6 d-flex justify-content-start\">";
+                        commentContent += "<h6 class=\"\">";
+                        commentContent += "<a class=\"text-dark\" style=\"text-decoration: none\">";
+                        commentContent += "<href=\"/usersprofile/"+comments[i].user.id+"\">"+comments[i].user.fullName+"</a>";
+                        commentContent += "</h6>";
+                        commentContent += "</div>";
+                        commentContent += "<div class=\"col-6 d-flex justify-content-end\">";
+                        if (document.getElementById("userId").value===document.getElementById("curUserId").value || comments[i].user.id==document.getElementById("curUserId").value) {
+                            commentContent += "<button type=\"button\" class=\"btn border-0\"><i class='far fa-trash-alt' style='font-size:16px' " +
+                                "onclick='openDeleteCommentModal(" + comments[i].id + ")'></i> </button>";
+                        }
+                        commentContent += "</div>";
+                        commentContent += "</div>";
+                        commentContent += "<p class=\"card-subtitle mb-1 text-muted\"><small>"+comments[i].createdAt+"</small></p>";
+                        commentContent += "<h6 class=\"ms-5\">"+comments[i].text+"</h6>";
+                        commentContent += "<hr class=\"post\">";
+                        commentContent += "</div>";
+                        document.getElementById(comments[i].post.id+'_commentContent').innerHTML += commentContent;
+                    }
+                }
+                xhhtp.open("GET", "http://localhost:8000/comment/"+userId.value);
+                xhhtp.send();
+            }
+
+            function addComment(postId){
+                var bodyObj = {
+                    "text": document.getElementById(postId+"_addCommentText").value,
+                    "user": {
+                        "id": document.getElementById("curUserId").value
+                    },
+                    "post": {
+                        "id": postId
+                    }
+                }
+
+                const xhhtp = new XMLHttpRequest();
+                xhhtp.onload = function(){
+                    loadPosts();
+                    clearComments();
+                    loadComments();
+                }
+                xhhtp.open("POST", "http://localhost:8000/comment");
+                xhhtp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+                xhhtp.send(JSON.stringify(bodyObj));
+            }
+
+            function clearComments(){
+                const xhhtp = new XMLHttpRequest();
+                xhhtp.onload = function(){
+                    var comments = JSON.parse(this.responseText);
+                    for(var i = 0; i<comments.length; i++){
+                        document.getElementById(comments[i].post.id+'_commentContent').innerHTML = "";
+                    }
+                }
+                xhhtp.open("GET", "http://localhost:8000/comment/"+userId.value);
+                xhhtp.send();
+            }
+
+            function openDeleteCommentModal(commentId){
+                const myModal = new bootstrap.Modal('#deleteCommentModal', {backdrop:true, focus:false, keyboard:false});
+
+                deleteCommentId.value = commentId;
+                myModal.show();
+            }
+
+            function deleteComment(){
+
+                const xhhtp = new XMLHttpRequest();
+                xhhtp.onload = function(){
+                    loadPosts();
+                    clearComments();
+                    loadComments();
+                }
+                xhhtp.open("DELETE", "http://localhost:8000/comment/"+deleteCommentId.value);
+                xhhtp.send();
+            }
+
+            function addLike(postId){
+                var bodyObj = {
+                    "post": {
+                        "id": postId
+                    }
+                }
+                const xhhtp = new XMLHttpRequest();
+                xhhtp.open("POST", "http://localhost:8000/like");
+                xhhtp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+                xhhtp.send(JSON.stringify(bodyObj));
+                xhhtp.onload = function(){
+                    loadPosts();
+                }
+            }
+
+            function deleteLike(postId){
+                const xhhtp = new XMLHttpRequest();
+                xhhtp.open("DELETE", "http://localhost:8000/like/"+postId);
+                xhhtp.send();
+                xhhtp.onload = function(){
+                    loadPosts();
+                }
+            }
+            function deletePost(id){
+                alert(id);
+                document.getElementById("postId").value=id;
+            }
+        </script>
 
     </div>
 </html>
